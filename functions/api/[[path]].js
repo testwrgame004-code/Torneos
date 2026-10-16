@@ -1,7 +1,7 @@
 // API de torneos TCG Pocket (Cloudflare Pages Function + Upstash Redis).
 // Contraseñas: NO están en el código. Se definen como variables en Cloudflare:
 //   ADMIN_PASSWORD  → contraseña general del "Modo admin"
-//   SUPER_PASSWORD  → contraseña de control total (se escribe en el mismo cuadro)
+//   SUPER_PASSWORD  → contraseña de control total (se escribe en el mismo cuadro) deploy
 // Si una variable no existe, esa contraseña queda desactivada.
 const P = 'tcgt:'; // prefijo de claves en Redis (no choca con tus bots)
 const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
