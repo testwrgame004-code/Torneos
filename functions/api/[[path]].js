@@ -1,7 +1,7 @@
 // API de torneos TCG Pocket (Cloudflare Pages Function + Upstash Redis).
 // Contraseñas: NO están en el código. Se definen como variables en Cloudflare:
 //   ADMIN_PASSWORD  → contraseña general del "Modo admin"
-//   SUPER_PASSWORD  → contraseña de control total (se escribe en el mismo cuadro) deploy
+//   SUPER_PASSWORD  → contraseña de control total (se escribe en el mismo cuadro)
 // Si una variable no existe, esa contraseña queda desactivada.
 const P = 'tcgt:'; // prefijo de claves en Redis (no choca con tus bots)
 const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -60,7 +60,8 @@ export async function onRequest({ request, env }) {
       const d = {
         id: doc.id, name: String(doc.name || '').slice(0, 60), fmt: ['bo3', 'sd', 'duo'].includes(doc.fmt) ? doc.fmt : 'sd',
         parts: (Array.isArray(doc.parts) ? doc.parts : []).slice(0, 128).map(s => String(s).slice(0, 60)),
-        ms: (Array.isArray(doc.ms) ? doc.ms : []).slice(0, 300), created: old ? old.created : Date.now(), upd: Number(doc.upd) || Date.now(),
+        ms: (Array.isArray(doc.ms) ? doc.ms : []).slice(0, 300), info: typeof doc.info === 'string' ? doc.info.slice(0, 3000) : (old ? old.info || '' : ''), rules: typeof doc.rules === 'string' ? doc.rules.slice(0, 3000) : (old ? old.rules || '' : ''),
+        created: old ? old.created : Date.now(), upd: Number(doc.upd) || Date.now(),
         by: (body.create || sup) ? String(doc.by || '').slice(0, 24) : old.by, ph: old ? old.ph : '', salt: old ? old.salt : '', iv: old ? old.iv : 0
       };
       if (body.create || (sup && body.newpw)) { d.salt = crypto.randomUUID(); d.ph = await sha(d.salt + ':' + (body.create ? body.pw : body.newpw)) }
