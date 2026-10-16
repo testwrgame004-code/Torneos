@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Torneos TCG Pocket</title>
+<style>
+:root{--bg:#f4f2fb;--card:#fff;--tx:#1d1b2e;--mu:#6b6785;--ac:#6d4aff;--ac2:#f5b301;--ok:#1fa971;--bd:#e0dcf0;--w:#efeaff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13111f;--card:#1e1b30;--tx:#eeeaff;--mu:#9d98ba;--bd:#322e4d;--w:#2a2450}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:linear-gradient(120deg,#4b2fd6,#8a4dff);color:#fff;flex-wrap:wrap}
+header h1{font-size:19px;margin:0;flex:1;cursor:pointer}
+main{max-width:1200px;margin:0 auto;padding:18px}
+button{font:inherit;cursor:pointer;border:0;border-radius:9px;padding:8px 14px;background:var(--ac);color:#fff}
+button.g{background:transparent;color:inherit;border:1px solid currentColor}
+button.s{padding:3px 9px;background:var(--w);color:var(--ac);font-weight:700}
+button.d{background:#d94452}button:disabled{opacity:.35;cursor:default}
+input,textarea,select{font:inherit;width:100%;padding:9px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);margin:4px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.tc{cursor:pointer;transition:.15s}.tc:hover{transform:translateY(-3px);border-color:var(--ac)}
+.tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--w);color:var(--ac);font-weight:600}
+.mu{color:var(--mu);font-size:13px}
+.bracket{display:flex;gap:26px;overflow-x:auto;padding:10px 4px 20px;align-items:stretch}
+.col{display:flex;flex-direction:column;min-width:240px}.slots{flex:1;display:grid;grid-auto-rows:1fr}.sl{display:flex;align-items:center;padding:7px 0}.sl>.m{width:100%}
+.col h3{text-align:center;margin:0;font-size:13px;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
+.m{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.p{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--bd)}
+.p:last-child{border:0}.p b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.p.win{background:var(--w)}.p.win b{font-weight:700;color:var(--ac)}
+.sc{min-width:22px;text-align:center;font-weight:700}
+.gm{padding:6px 10px;border-bottom:1px solid var(--bd);font-size:12.5px}
+.gm div{display:flex;gap:4px;margin-top:4px}.gm button{flex:1;padding:4px 2px;font-size:12px;background:var(--w);color:var(--tx)}
+.gm button.on{background:var(--ac);color:#fff}
+.champ{text-align:center;padding:18px;border-radius:16px;background:linear-gradient(120deg,#f5b301,#ff8a3d);color:#2a1a00;font-size:20px;font-weight:800;margin-bottom:14px}
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal .card{width:min(460px,100%);max-height:90vh;overflow:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:10}
+.wrap{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:start}@media(max-width:880px){.wrap{grid-template-columns:1fr}}
+.st table{width:100%;border-collapse:collapse;font-size:13px}.st th{color:var(--mu);font-weight:600}.st td,.st th{padding:7px 4px;text-align:center;border-bottom:1px solid var(--bd)}.st td:nth-child(2),.st th:nth-child(2){text-align:left}.st tr.out{opacity:.45}.st .pt{font-weight:800;color:var(--ac)}
+.gl{display:grid;grid-template-columns:1fr 34px 1fr;gap:5px;padding:8px;border-top:1px solid var(--bd)}.gl.s2{grid-template-columns:1fr 1fr}
+.gl button{padding:6px 3px;font-size:12px;background:var(--w);color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gl button.on{background:var(--ac);color:#fff}
+button{touch-action:manipulation}body{background:radial-gradient(900px 400px at 10% -5%,#6d4aff33,transparent),radial-gradient(700px 400px at 100% 0,#f5b30122,transparent),var(--bg)}
+header{background:linear-gradient(120deg,#3b1fb8,#7a45ff 55%,#c04dff);box-shadow:0 6px 24px #4b2fd655}header h1{font-size:21px}
+.card{box-shadow:0 4px 18px #1d1b2e14}.tc{overflow:hidden}.tc:hover{box-shadow:0 10px 30px #6d4aff44}
+.cv{margin:-16px -16px 12px;height:130px;background:#444 center/cover;display:flex;align-items:center;justify-content:center;font-size:54px}
+.cv.bo3{background-image:linear-gradient(135deg,#ff5f6d,#ffc371)}.cv.sd{background-image:linear-gradient(135deg,#f7971e,#ffd200)}.cv.duo{background-image:linear-gradient(135deg,#00c6ff,#7a45ff)}
+.hero{min-height:190px;border-radius:18px;margin-bottom:16px;background:linear-gradient(135deg,#4b2fd6,#c04dff) center/cover;display:flex;align-items:flex-end;color:#fff;overflow:hidden}
+.hero .hi{padding:20px;width:100%;background:linear-gradient(0deg,#000a,transparent)}.hero h1{margin:8px 0;font-size:30px;text-shadow:0 2px 8px #0008}
+.col h3{background:var(--w);color:var(--ac);padding:6px;border-radius:99px;margin-bottom:6px}
+.m{box-shadow:0 3px 12px #1d1b2e18}.p.win{background:linear-gradient(90deg,var(--w),transparent)}
+.champ{animation:pop .6s ease;box-shadow:0 10px 40px #f5b30166}@keyframes pop{from{transform:scale(.8);opacity:0}}
+.grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.tc{padding:0}
+.tc .cv{margin:0;height:200px;position:relative}
+.ov{position:absolute;left:0;right:0;bottom:0;padding:30px 12px 9px;background:linear-gradient(0deg,#000c,transparent);color:#fff;font-size:12px;text-align:left}
+.ov h3{margin:4px 0 2px!important;font-size:16px}.ov .tag{background:#ffffff33;color:#fff;font-size:11px}.st2{padding:8px 12px;font-size:13px}
+@keyframes grad{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}@keyframes fade{from{opacity:0}}
+@keyframes wig{25%{transform:rotate(-3deg) scale(1.05)}75%{transform:rotate(3deg) scale(1.05)}}
+@keyframes glow{50%{box-shadow:inset 0 0 16px #6d4aff66}}@keyframes fl{to{transform:translate(60px,-80px) scale(1.25)}}
+header{background-size:200% 200%;animation:grad 10s ease infinite}header h1{display:inline-block}header h1:hover{animation:wig .6s}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(70px);opacity:.3;pointer-events:none;animation:fl 14s ease-in-out infinite alternate}
+body::before{width:380px;height:380px;background:#6d4aff;left:-110px;top:20%}body::after{width:320px;height:320px;background:#f5b301;right:-90px;bottom:4%;animation-delay:-6s}
+.grid .card{animation:up .5s both}.grid .card:nth-child(2){animation-delay:.08s}.grid .card:nth-child(3){animation-delay:.16s}.grid .card:nth-child(4){animation-delay:.24s}.grid .card:nth-child(n+5){animation-delay:.32s}
+.tc{position:relative}.tc:hover{transform:translateY(-6px) scale(1.02)}
+.tc::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,#ffffff55 50%,transparent 60%);transform:translateX(-100%);transition:transform .7s;pointer-events:none}.tc:hover::after{transform:translateX(100%)}
+button{transition:filter .15s,transform .15s}button:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-1px)}button:active:not(:disabled){transform:scale(.94)}
+.m{transition:transform .2s,box-shadow .2s}.m:hover{transform:translateY(-3px);box-shadow:0 10px 24px #6d4aff44}
+.p.win{animation:glow 2.4s ease-in-out infinite}.hero{animation:up .5s both}.tag{transition:transform .2s}.tc:hover .tag{transform:scale(1.08)}
+.champ{background-size:200% 200%;animation:pop .6s ease,grad 3s ease infinite}
+.modal{animation:fade .2s}.modal .card{animation:pop .3s}#toast{animation:up .3s}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
+.logo{display:flex!important;align-items:center;gap:12px}
+.pb{width:46px;height:46px;flex:none;filter:drop-shadow(0 0 10px #ff4d5eaa)}
+.lt{display:flex;flex-direction:column;line-height:1}
+.lt b{font-size:27px;font-weight:900;font-style:italic;letter-spacing:2px;background:linear-gradient(110deg,#ffb52e 0,#ffd34d 38%,#fff 50%,#ffd34d 62%,#ff9d2e 100%);background-size:260% 100%;animation:shine 3s ease-in-out infinite alternate;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #3b1fb8) drop-shadow(0 0 10px #ffd34d88)}
+.lt small{font-size:11px;letter-spacing:6px;font-weight:700;color:#fff;opacity:.92;margin-top:5px}
+.logo:hover{animation:none}@keyframes shine{from{background-position:100% 0}to{background-position:0 0}}
+.logo:hover .pb{animation:spin .8s}@keyframes spin{to{transform:rotate(360deg)}}
+.gh{grid-column:1/-1;font-weight:800;font-size:15px;color:var(--mu);margin:8px 2px 0}.gh:first-child{margin-top:0}
+.fin{opacity:.8;filter:saturate(.7)}.fin:hover{opacity:1;filter:none}
+.wrap{grid-template-columns:390px minmax(0,1fr)}
+.gl{display:flex;flex-direction:column;gap:9px}
+.g3{display:grid;grid-template-columns:1fr 62px 1fr;gap:5px}.g3.g2{grid-template-columns:1fr 1fr}
+.gr .gn{display:block;font-size:11.5px;color:var(--mu);margin-bottom:3px}
+.stt{padding:6px 10px;font-size:12.5px;font-weight:600;background:var(--w);color:var(--ac)}
+.lg{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--w);font-size:12.5px}.lg ul{margin:6px 0 0;padding-left:18px}.lg li{margin-bottom:4px}
+.st td small{color:var(--mu)}.st td b{font-weight:700}
+</style></head><body>
+<header><h1 onclick="go(null)" class="logo"><img class="pb" alt="" src="pokeball.png"><span class="lt"><b>TORNEOS</b><small>TCG POCKET</small></span></h1><span id="hb"></span></header>
+<main id="app"></main><div id="toast"></div>
+<script>
+let adminName='',tabOpen=false,tk='',SU=false,GP='',SP='',tp={},T=[],cur=null,adm=false,unl=new Set(),ready=false;
+const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const FM={bo3:'Mejor de 3 (Bo3)',sd:'Muerte súbita',duo:'Dúos 2vs2'};
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)}
+async function H(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('tcgp|'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of 'tcgp|'+s)h=(h*33^c.charCodeAt(0))>>>0;return 'x'+h}}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+const mk=(a,b)=>({a:a||'',b:b||'',sa:0,sb:0,g:['','','',''],sd:''});
+function build(t){let n=t.parts.length,sz=2;while(sz<n)sz*=2;const arr=shuffle(t.parts);while(arr.length<sz)arr.push('');
+ const r0=[];for(let i=0;i<sz/2;i++)r0.push(mk(arr[i],arr[sz-1-i]));r0.forEach(m=>m.by=!m.b);t.rounds=[r0];
+ for(let s=sz/4;s>=1;s/=2)t.rounds.push(Array.from({length:s},()=>mk(null,null)));sync(t)}
+function pts(m){let a=0,b=0;m.g.forEach(x=>{if(x=='a')a+=3;else if(x=='b')b+=3;else if(x=='d'){a++;b++}});return[a,b]}
+function win(m,t){if(m.by)return m.a;if(!m.a||!m.b)return null;
+ if(t.fmt=='duo'){if(m.g.some(x=>!x))return null;const[a,b]=pts(m);return a>b?m.a:b>a?m.b:m.sd=='a'?m.a:m.sd=='b'?m.b:null}
+ const n=t.fmt=='bo3'?2:1;return m.sa>=n?m.a:m.sb>=n?m.b:null}
+function sync(t){for(let r=1;r<t.rounds.length;r++)t.rounds[r].forEach((m,i)=>{const p=t.rounds[r-1],a=win(p[2*i],t),b=win(p[2*i+1],t);
+ if(m.a!==(a||'')||m.b!==(b||''))Object.assign(m,mk(a,b))})}
+function hyd(t){t.rounds=[];(t.ms||[]).forEach(m=>{(t.rounds[m.r]=t.rounds[m.r]||[])[m.i]=m});if(t.rounds[0])t.rounds[0].forEach(m=>{if(m.by===undefined)m.by=!m.b});return t}
+async function api(m,p,b){const r=await fetch('/api'+p,{method:m,headers:{'content-type':'application/json'},body:b?JSON.stringify(b):undefined});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||'Error '+r.status);return j}
+async function loadT(){try{const arr=await api('GET','/torneos'),nt=arr.map(hyd).filter(x=>x.rounds.length).map(x=>{const l=T.find(y=>y.id==x.id);return l&&(l.upd||0)>(x.upd||0)?l:x}),k=JSON.stringify(nt);if(ready&&k===tk)return;tk=k;T=nt;ready=true;draw()}catch(e){if(!ready)$('#app').innerHTML='<p class="mu">No se pudo cargar. Reintentando…</p>'}}
+async function save(t,pw,extra){t.upd=Date.now();const{rounds,...o}=t;o.ms=[];rounds.forEach((R,r)=>R.forEach((m,i)=>o.ms.push({...m,r,i})));
+ try{const j=await api('POST','/save',{doc:o,create:!!pw,pw,tp:tp[t.id],gp:GP,sp:SP,...extra});if(j.img!==undefined)t.img=j.img;if(!pw)toast('Guardado ✓');tk='';return true}
+ catch(e){toast(e.message);t.upd=0;tk='';loadT();return false}}
+function doAct(r,i,k,v){const t=cur_t();if(!t||!canE(t.id))return toast('Desbloquea el torneo primero');const m=t.rounds[r][i];
+ if(k=='s'){const n=t.fmt=='bo3'?2:1;if(v>0){if(win(m,t))return;m[v==1?'sa':'sb']++}else m[v==-1?'sa':'sb']=Math.max(0,m[v==-1?'sa':'sb']-1)}
+ else if(k=='g')m.g[v[0]]=m.g[v[0]]==v[1]?'':v[1];
+ else if(k=='sd')m.sd=m.sd==v?'':v;
+ else if(k=='x')Object.assign(m,mk(m.a,m.b));
+ sync(t);draw();save(t)}
+const cur_t=()=>T.find(x=>x.id==cur);
+function go(id){cur=id;draw()}
+function ask(title,fields,ok){const d=document.createElement('div');d.className='modal';
+ d.innerHTML='<div class="card"><h3 style="margin-top:0">'+title+'</h3>'+fields+'<div class="row"><button id="mo">Aceptar</button><button class="g" id="mc">Cancelar</button></div></div>';
+ document.body.appendChild(d);const q=s=>d.querySelector(s);q('#mc').onclick=()=>d.remove();
+ q('#mo').onclick=async()=>{if(await ok(q))d.remove()};const f=d.querySelector('input,textarea');f&&f.focus()}
+function login(){ask('Modo admin','<input id="p" type="password" placeholder="Contraseña">',async q=>{const v=q('#p').value;try{const j=await api('POST','/login',{pass:v});SU=j.r==2;GP=SU?'':v;SP=SU?v:'';adm=true;draw();setName();return true}catch(e){toast(e.message)}})}
+function unlock(){const t=cur_t();ask('Contraseña del torneo','<input id="p" type="password" placeholder="Contraseña de «'+E(t.name)+'»">',async q=>{const v=q('#p').value;try{await api('POST','/auth',{id:t.id,tp:v});tp[t.id]=v;unl.add(t.id);draw();return true}catch(e){toast(e.message)}})}
+const canE=id=>SU||unl.has(id);
+function logout(){adm=false;SU=false;GP='';SP='';tp={};unl.clear();draw()}
+function editT(){const t=cur_t();
+ ask('Ajustes del torneo','<label class="mu">Nombre</label><input id="n" value="'+E(t.name)+'"><label class="mu">Cambiar imagen (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu"><input type="checkbox" id="ri" style="width:auto"> Quitar imagen</label>'+(SU?'<label class="mu">Creador</label><input id="cr" value="'+E(t.by||'')+'"><label class="mu">Nueva contraseña del torneo (vacío = no cambiar)</label><input id="np" type="password">':''),async q=>{
+  const n=q('#n').value.trim();if(!n)return toast('Pon un nombre');const f=q('#im').files[0];
+  t.name=n;if(f)t.img=await shrink(f);else if(q('#ri').checked)t.img='';
+  if(SU)t.by=q('#cr').value.trim();const np=SU?q('#np').value:'';
+  if(!await save(t,undefined,np?{newpw:np}:{}))return;draw();return true})}
+function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
+ async q=>{const name=q('#n').value.trim(),f=q('#f').value,pw=q('#p').value;let parts=[];
+  if(f=='duo'){for(const r of d.querySelectorAll('#dl .row')){const a=r.querySelector('.d1').value.replace(/&/g,'').trim(),b=r.querySelector('.d2').value.replace(/&/g,'').trim();if(!a&&!b)continue;if(!a||!b)return toast('Cada dúo necesita dos jugadores');parts.push(a+' & '+b)}}
+  else parts=q('#l').value.split('\n').map(x=>x.replace(/&/g,'').trim()).filter(Boolean);
+  parts=[...new Set(parts)];
+  if(!name||pw.length<3)return toast('Pon nombre y contraseña (mín. 3)');
+  if(parts.length<2)return toast('Mínimo 2 participantes');
+  const t={id:'t'+Date.now().toString(36),name,fmt:f,parts,created:Date.now(),by:adminName,img:q('#im')&&q('#im').files[0]?await shrink(q('#im').files[0]):''};build(t);tp[t.id]=pw;unl.add(t.id);if(!await save(t,pw))return;cur=t.id;draw();return true});
+ const d=[...document.querySelectorAll('.modal')].pop(),pl=d.querySelector('#pl'),f=d.querySelector('#f');
+ const rend=()=>{if(f.value=='duo'){pl.innerHTML='<label class="mu">Dúos (dos jugadores por dúo)</label><div id="dl"></div><button class="g" style="color:var(--ac);margin-bottom:10px" id="ad">+ Añadir dúo</button>';const dl=pl.querySelector('#dl'),add=()=>{const r=document.createElement('div');r.className='row';r.style.marginBottom='0';r.innerHTML='<input class="d1" placeholder="Jugador 1" style="flex:1;min-width:0"><input class="d2" placeholder="Jugador 2" style="flex:1;min-width:0">';dl.appendChild(r)};add();add();pl.querySelector('#ad').onclick=add}else pl.innerHTML='<label class="mu">Participantes (uno por línea)</label><textarea id="l" rows="8"></textarea>'};
+ f.onchange=rend;rend()}
+const IC={bo3:'⚔️',sd:'⚡',duo:'🤝'};
+function hero(t){return `<div class="hero"${t.img?` style="background-image:linear-gradient(0deg,#0009,#0002),url(${t.img})"`:''}><div class="hi"><span class="tag">${IC[t.fmt]} ${FM[t.fmt]}</span><h1>${E(t.name)}</h1><div>👤 Creado por <b>${E(t.by||'—')}</b> · ${t.parts.length} ${t.fmt=='duo'?'dúos':'participantes'}</div></div></div>`}
+function shrink(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const W=640,H=360,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),s=Math.max(W/im.width,H/im.height),w=im.width*s,h=im.height*s;x.drawImage(im,(W-w)/2,(H-h)/2,w,h);res(c.toDataURL('image/jpeg',.72))};im.onerror=()=>res('');im.src=r.result};r.onerror=()=>res('');r.readAsDataURL(f)})}
+function setName(){let sv='';try{sv=localStorage.getItem('adm')||''}catch(e){}ask('¿Cómo te llamas? (se verá como creador de tus torneos)','<input id="u" maxlength="24" placeholder="Tu nombre de admin" value="'+E(sv)+'">',async q=>{const v=q('#u').value.trim();if(!v)return toast('Escribe un nombre');adminName=v;try{localStorage.setItem('adm',v)}catch(e){}draw();return true})}
+const clean=m=>!m.sa&&!m.sb&&!m.sd&&m.g.every(x=>!x);
+function applyP(t,rows){
+ const names=rows.map(r=>r.n);
+ if(new Set(names).size<names.length)return 'Hay nombres repetidos';
+ if(names.length<2)return 'Mínimo 2 participantes';
+ const kept=new Set(rows.filter(r=>r.o).map(r=>r.o)),rem=t.parts.filter(p=>!kept.has(p)),add=rows.filter(r=>!r.o).map(r=>r.n),map={};
+ rows.forEach(r=>{if(r.o&&r.o!==r.n)map[r.o]=r.n});
+ if(!Object.keys(map).length&&!rem.length&&!add.length)return '';
+ const c=JSON.parse(JSON.stringify(t)),none=c.rounds.every(R=>R.every(clean)),ap=m=>{for(const k of['a','b'])if(Object.hasOwn(map,m[k]))m[k]=map[m[k]]};
+ if(none&&rem.length!=add.length){c.parts=names;build(c)}
+ else{
+  let rm=rem,ad=add;
+  if(none){rem.forEach((x,k)=>map[x]=add[k]);rm=[];ad=[]}
+  c.rounds.forEach(R=>R.forEach(ap));c.parts=c.parts.map(p=>Object.hasOwn(map,p)?map[p]:p);
+  for(const x of rm){const i=c.rounds[0].findIndex(m=>m.a===x||m.b===x),m=c.rounds[0][i];
+   if(!m||m.by||!clean(m)||(c.rounds[1]&&!clean(c.rounds[1][i>>1])))return 'No se puede quitar a «'+x+'»: ya jugó, ya avanzó o pasó por BYE';
+   if(m.a===x)m.a=m.b;m.b='';m.by=true;c.parts=c.parts.filter(p=>p!==x)}
+  sync(c);
+  for(const n of ad){const i=c.rounds[0].findIndex((m,i)=>m.by&&(!c.rounds[1]||clean(c.rounds[1][i>>1])));if(i<0)return 'No hay cupo libre para añadir a «'+n+'»';const m=c.rounds[0][i];m.b=n;m.by=false;c.parts.push(n);sync(c)}
+ }
+ t.parts=c.parts;t.rounds=c.rounds;return ''}
+const prow=(o,duo)=>{const[x,y]=duo?String(o||'').split(' & '):[o||''];return `<div class="row pr" data-o="${E(o||'')}" style="margin-bottom:6px;flex-wrap:nowrap"><input class="x" value="${E(x)}" placeholder="${duo?'Jugador 1':'Nombre'}" style="margin:0">${duo?`<input class="y" value="${E(y||'')}" placeholder="Jugador 2" style="margin:0">`:''}<button class="d" style="padding:6px 10px" onclick="this.parentNode.remove()">✕</button></div>`};
+function editP(){const t=cur_t(),duo=t.fmt=='duo';
+ ask('Participantes','<div id="pe">'+t.parts.map(p=>prow(p,duo)).join('')+'</div><button class="g" style="color:var(--ac);margin-bottom:10px" id="pa">+ Añadir</button><p class="mu">Si nadie ha jugado, puedes cambiar la lista libremente (si cambia el número, las llaves se regeneran). Con combates en curso solo puedes renombrar, quitar a quien aún no ha jugado y añadir en cupos libres (BYE).</p>',async q=>{
+  let bad=false;const rows=[...d.querySelectorAll('.pr')].map(r=>{const x=r.querySelector('.x').value.replace(/&/g,'').trim(),y=duo?r.querySelector('.y').value.replace(/&/g,'').trim():'';if(duo&&!x!=!y)bad=true;return{o:r.dataset.o,n:duo?(x&&y?x+' & '+y:''):x}}).filter(r=>r.n);
+  if(bad)return toast('Cada dúo necesita dos jugadores');
+  const e=applyP(t,rows);if(e){toast(e);return}
+  draw();save(t);return true});
+ const d=[...document.querySelectorAll('.modal')].pop();d.querySelector('#pa').onclick=()=>d.querySelector('#pe').insertAdjacentHTML('beforeend',prow('',duo))}
+let cf='';function boom(k){if(cf==k||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;cf=k;const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20';c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);const x=c.getContext('2d'),P=Array.from({length:150},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,v:2+Math.random()*4,w:6+Math.random()*6,r:Math.random()*6,s:Math.random()*.2-.1,h:Math.random()*360}));let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.y/30);p.r+=p.s;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle='hsl('+p.h+',90%,60%)';x.fillRect(-p.w/2,-p.w/2,p.w,p.w*.6);x.restore()});if(++f<260)requestAnimationFrame(a);else c.remove()})()}
+const done=x=>!!win(x.rounds[x.rounds.length-1][0],x);
+function regen(){const t=cur_t();ask('¿Regenerar las llaves? Se pierden los resultados.','',async()=>{build(t);save(t);draw();return true})}
+function del(){const t=cur_t();ask('¿Eliminar «'+E(t.name)+'»?','',async()=>{try{await api('POST','/delete',{id:t.id,tp:tp[t.id],sp:SP})}catch(e){toast(e.message);return}cur=null;tk='';await loadT();draw();return true})}
+const rn=(r,n)=>r==n-1?'Final':r==n-2?'Semifinales':r==n-3?'Cuartos':'Ronda '+(r+1);
+const D=(r,i,k,v)=>`data-a="${E(JSON.stringify([r,i,k,v]))}"`;
+function card(t,r,i,m,ed){
+ const w=win(m,t),can=ed&&m.a&&m.b,A=m.a?E(m.a):'<span class="mu">Por definir</span>',B=m.b?E(m.b):(m.a&&r==0?'<span class="mu">BYE</span>':'<span class="mu">Por definir</span>');
+ if(t.fmt=='sd'){const row=(n,nm,v)=>`<div class="p ${w&&w==nm?'win':''}"><b>${n}</b>${w&&w==nm?'<span class="sc">✓</span>':''}${can&&!w?`<button class="s" ${D(r,i,'s',v)}>Gana</button>`:''}</div>`;return `<div class="m">${row(A,m.a,1)}${row(B,m.b,2)}${can&&w?`<div class="gl" style="grid-template-columns:1fr"><button ${D(r,i,'x',0)}>↺ Deshacer</button></div>`:''}</div>`}
+ if(t.fmt!='duo'){const row=(n,nm,sc,v)=>`<div class="p ${w&&w==nm?'win':''}"><b>${n}</b><span class="sc">${sc}</span>${can?`<button class="s" ${D(r,i,'s',v)}>+</button><button class="s" ${D(r,i,'s',-v)}>−</button>`:''}</div>`;
+  return `<div class="m">${row(A,m.a,m.a&&m.b?m.sa:'',1)}${row(B,m.b,m.a&&m.b?m.sb:'',2)}</div>`}
+  const[pa,pb]=pts(m),pl=x=>(x||'').split('&').map(s=>s.trim()),a=pl(m.a),b=pl(m.b),pr=[[0,0],[1,1],[0,1],[1,0]],sh=s=>E((s||'').slice(0,12)),pj=m.g.filter(x=>x).length,both=m.a&&m.b;
+ const stt=w?'✅ Ganó '+E(w):!both?'⏳ Esperando rivales':pj<4?'⚔️ En juego · '+pj+'/4 combates jugados':pa==pb?'⚡ Empate: se define en muerte súbita':'';
+ let h=`<div class="m"><div class="p ${w&&w==m.a?'win':''}"><b>${A}</b><span class="sc">${both?pa:''}</span></div><div class="p ${w&&w==m.b?'win':''}"><b>${B}</b><span class="sc">${both?pb:''}</span></div>${stt?`<div class="stt">${stt}</div>`:''}`;
+ if(both){h+='<div class="gl">';pr.forEach(([x,y],k)=>{const g=m.g[k],bt=(v,l)=>`<button class="${g==v?'on':''}" ${can?'':'disabled'} ${D(r,i,'g',[k,v])}>${l}</button>`,
+   res=g=='a'?'✅ Gana '+E(a[x])+' (+3 pts)':g=='b'?'✅ Gana '+E(b[y])+' (+3 pts)':g=='d'?'🤝 Empate (+1 pt c/u)':'pendiente';
+   h+=`<div class="gr"><span class="gn"><b>Combate ${k+1}</b> · ${res}</span><div class="g3">${bt('a',sh(a[x]))}${bt('d','Empate')}${bt('b',sh(b[y]))}</div></div>`});h+='</div>';
+  if(m.g.every(x=>x)&&pa==pb)h+=`<div class="gl"><div class="gr"><span class="gn"><b>⚡ Muerte súbita</b> · 1 combate, quien gane avanza</span><div class="g3 g2"><button class="${m.sd=='a'?'on':''}" ${can?'':'disabled'} ${D(r,i,'sd','a')}>${sh(m.a)}</button><button class="${m.sd=='b'?'on':''}" ${can?'':'disabled'} ${D(r,i,'sd','b')}>${sh(m.b)}</button></div></div></div>`}
+ return h+'</div>'}
+function stand(t){const S={};t.parts.forEach(p=>S[p]={n:p,g:0,e:0,p:0,pt:0});const out=new Set();
+ t.rounds.forEach(R=>R.forEach(m=>{if(!m.a||!m.b)return;const A=S[m.a],B=S[m.b],w=win(m,t);if(w)out.add(w==m.a?m.b:m.a);if(!A||!B)return;
+  m.g.forEach(x=>{if(x=='a'){A.g++;A.pt+=3;B.p++}else if(x=='b'){B.g++;B.pt+=3;A.p++}else if(x=='d'){A.e++;B.e++;A.pt++;B.pt++}})}));
+ return Object.values(S).sort((x,y)=>y.pt-x.pt||y.g-x.g).map(s=>({...s,out:out.has(s.n)}))}
+function draw(){
+ $('#hb').innerHTML=adm?'<span class="tag">👤 '+E(adminName||'Admin')+'</span> <button class="g" onclick="logout()">Salir</button>':'<button class="g" onclick="login()">Modo admin</button>';
+ const A=$('#app');if(!ready){A.innerHTML='<p class="mu">Cargando torneos…</p>';return}
+ const t=cur_t();
+ if(!t){let h=`<div class="row"><h2 style="margin:0;flex:1">Torneos</h2>${adm?'<button onclick="newT2()">+ Nuevo torneo</button>':''}</div>`;
+  if(!T.length)h+='<p class="mu">Aún no hay torneos.</p>';
+  const gh=[0,0];h+='<div class="grid">'+T.sort((a,b)=>done(a)-done(b)||b.created-a.created).map(x=>{const f=x.rounds[x.rounds.length-1][0],c=win(f,x),hd=(!c&&!gh[0]?(gh[0]=1,'<div class="gh">🔥 En curso</div>'):'')+(c&&!gh[1]?(gh[1]=1,'<div class="gh">🏁 Finalizados</div>'):'');
+   return hd+`<div class="card tc${c?' fin':''}" onclick="go('${x.id}')"><div class="cv ${x.fmt}"${x.img?` style="background-image:url(${x.img})"`:''}>${x.img?'':IC[x.fmt]}<div class="ov"><span class="tag">${FM[x.fmt]}</span><h3>${E(x.name)}</h3><div>${x.parts.length} ${x.fmt=='duo'?'dúos':'participantes'} · 👤 ${E(x.by||'—')}</div></div></div><div class="st2">${c?'🏆 '+E(c):'<span class="mu">En curso</span>'}</div></div>`}).join('')+'</div>';
+  A.innerHTML=h;return}
+ const ed=adm&&canE(t.id),n=t.rounds.length,c=win(t.rounds[n-1][0],t);
+ let h=hero(t)+`<div class="row"><button class="g" style="color:var(--tx)" onclick="go(null)">← Volver</button><span style="flex:1"></span>`;
+ if(adm)h+=ed?'<button onclick="editP()">👥 Participantes</button><button class="g" style="color:var(--tx)" onclick="editT()">⚙️ Ajustes</button><button class="g" style="color:var(--tx)" onclick="regen()">Regenerar llaves</button><button class="d" onclick="del()">Eliminar</button>':'<button onclick="unlock()">🔒 Desbloquear para editar</button>';
+ h+='</div>'+(c?(boom(t.id+c),`<div class="champ">🎉 🏆 Campeón: ${E(c)} 🏆 🎉</div>`):'');
+ let br='<div class="bracket">';t.rounds.forEach((R,r)=>{br+=`<div class="col"><h3>${rn(r,n)}</h3>`+'<div class="slots">'+R.map((m,i)=>'<div class="sl">'+card(t,r,i,m,ed)+'</div>').join('')+'</div></div>'});br+='</div>';
+ if(t.fmt=='duo'){h+=`<div class="row"><button class="g" style="color:var(--tx)" onclick="tabOpen=!tabOpen;draw()">${tabOpen?'▾ Ocultar tabla de puntuación':'▸ Ver tabla de puntuación'}</button></div>`;if(!tabOpen)h+=br;else{const S=stand(t);h+=`<div class="wrap"><div class="card st"><h3 style="margin:0 0 8px">Tabla de puntuación</h3><table><tr><th>#</th><th>Dúo</th><th title="Combates jugados">Jug.</th><th title="Ganados">G</th><th title="Empatados">E</th><th title="Perdidos">P</th><th title="Puntos">Pts</th></tr>${S.map((s,k)=>`<tr class="${s.out?'out':''}"><td>${s.pt&&k<3?['🥇','🥈','🥉'][k]:k+1}</td><td><b>${E(s.n)}</b><br><small>${c==s.n?'🏆 Campeón':s.out?'🔴 Eliminado':'🟢 En competencia'}</small></td><td>${s.g+s.e+s.p}</td><td>${s.g}</td><td>${s.e}</td><td>${s.p}</td><td class="pt">${s.pt}</td></tr>`).join('')}</table><div class="lg"><b>📖 Cómo leer la tabla</b><ul><li><b>Jug.</b> combates jugados · <b>G</b> ganados · <b>E</b> empatados · <b>P</b> perdidos · <b>Pts</b> puntos.</li><li>Cada enfrentamiento entre dos dúos son <b>4 combates</b>. Victoria = 3 pts, empate = 1 pt para cada uno, derrota = 0.</li><li>Gana el enfrentamiento el dúo con <b>más puntos</b>. Si empatan, se juega una <b>muerte súbita</b>.</li><li>La tabla suma todos los combates del dúo. <b>Avanza quien gana su enfrentamiento</b>, no necesariamente quien acumula más puntos.</li></ul></div></div><div style="min-width:0">${br}</div></div>`}}
+ else h+=br+(t.fmt=='bo3'?'<p class="mu">Gana quien llegue primero a 2 victorias.</p>':'');
+ A.innerHTML=h}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;try{doAct(...JSON.parse(b.dataset.a))}catch(err){toast('Error: '+err.message)}});
+draw();loadT();setInterval(()=>{if(!document.hidden)loadT()},20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadT()});
+</script></body></html>
