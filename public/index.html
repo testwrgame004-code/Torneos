@@ -44,7 +44,7 @@ button{touch-action:manipulation}body{background:radial-gradient(900px 400px at 
 header{background:linear-gradient(120deg,#3b1fb8,#7a45ff 55%,#c04dff);box-shadow:0 6px 24px #4b2fd655}header h1{font-size:21px}
 .card{box-shadow:0 4px 18px #1d1b2e14}.tc{overflow:hidden}.tc:hover{box-shadow:0 10px 30px #6d4aff44}
 .cv{margin:-16px -16px 12px;height:130px;background:#444 center/cover;display:flex;align-items:center;justify-content:center;font-size:54px}
-.cv.bo3{background-image:linear-gradient(135deg,#ff5f6d,#ffc371)}.cv.sd{background-image:linear-gradient(135deg,#f7971e,#ffd200)}.cv.duo{background-image:linear-gradient(135deg,#00c6ff,#7a45ff)}
+.cv.bo3{background-image:linear-gradient(135deg,#ff5f6d,#ffc371)}.cv.sd{background-image:linear-gradient(135deg,#f7971e,#ffd200)}.cv.mix{background-image:linear-gradient(135deg,#ff5f6d,#7a45ff)}.cv.duo{background-image:linear-gradient(135deg,#00c6ff,#7a45ff)}
 .hero{min-height:190px;border-radius:18px;margin-bottom:16px;background:linear-gradient(135deg,#4b2fd6,#c04dff) center/cover;display:flex;align-items:flex-end;color:#fff;overflow:hidden}
 .hero .hi{padding:20px;width:100%;background:linear-gradient(0deg,#000a,transparent)}.hero h1{margin:8px 0;font-size:30px;text-shadow:0 2px 8px #0008}
 .col h3{background:var(--w);color:var(--ac);padding:6px;border-radius:99px;margin-bottom:6px}
@@ -101,7 +101,9 @@ button{transition:filter .15s,transform .15s}button:hover:not(:disabled){filter:
 <script>
 let adminName='',ip='',tabOpen=false,tk='',SU=false,GP='',SP='',tp={},T=[],cur=null,adm=false,unl=new Set(),ready=false;
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const FM={bo3:'Mejor de 3 (Bo3)',sd:'Muerte súbita',duo:'Dúos 2vs2'};
+const FM={bo3:'Mejor de 3 (Bo3)',sd:'Muerte súbita',mix:'Muerte súbita + Bo3',duo:'Dúos 2vs2'};
+// En 'mix', las dos últimas rondas (semifinales y final) son Bo3; las demás, muerte súbita.
+function isB(t,m){if(t.fmt=='bo3')return true;if(t.fmt!='mix')return false;return t.rounds.findIndex(R=>R.includes(m))>=t.rounds.length-2}
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)}
 async function H(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('tcgp|'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of 'tcgp|'+s)h=(h*33^c.charCodeAt(0))>>>0;return 'x'+h}}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -112,7 +114,7 @@ function build(t){let n=t.parts.length,sz=2;while(sz<n)sz*=2;const arr=shuffle(t
 function pts(m){let a=0,b=0;m.g.forEach(x=>{if(x=='a')a+=3;else if(x=='b')b+=3;else if(x=='d'){a++;b++}});return[a,b]}
 function win(m,t){if(m.by)return m.a;if(!m.a||!m.b)return null;
  if(t.fmt=='duo'){if(m.g.some(x=>!x))return null;const[a,b]=pts(m);return a>b?m.a:b>a?m.b:m.sd=='a'?m.a:m.sd=='b'?m.b:null}
- const n=t.fmt=='bo3'?2:1;return m.sa>=n?m.a:m.sb>=n?m.b:null}
+ const n=isB(t,m)?2:1;return m.sa>=n?m.a:m.sb>=n?m.b:null}
 function sync(t){for(let r=1;r<t.rounds.length;r++)t.rounds[r].forEach((m,i)=>{const p=t.rounds[r-1],a=win(p[2*i],t),b=win(p[2*i+1],t);
  if(m.a!==(a||'')||m.b!==(b||''))Object.assign(m,mk(a,b))})}
 function hyd(t){t.rounds=[];(t.ms||[]).forEach(m=>{(t.rounds[m.r]=t.rounds[m.r]||[])[m.i]=m});if(t.rounds[0])t.rounds[0].forEach(m=>{if(m.by===undefined)m.by=!m.b});return t}
@@ -143,7 +145,7 @@ function editT(){const t=cur_t();
   t.name=n;t.info=q('#ti').value.trim();t.rules=q('#tr').value.trim();if(f)t.img=await shrink(f);else if(q('#ri').checked)t.img='';
   if(SU)t.by=q('#cr').value.trim();const np=SU?q('#np').value:'';
   if(!await save(t,undefined,np?{newpw:np}:{}))return;draw();return true})}
-function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="3000" placeholder="Fecha, premios, cómo inscribirse…"></textarea><label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="3000" placeholder="Reglas, restricciones, tiempos…"></textarea><label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
+function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="mix">Muerte súbita + Bo3 (semifinales y final en Bo3)</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="3000" placeholder="Fecha, premios, cómo inscribirse…"></textarea><label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="3000" placeholder="Reglas, restricciones, tiempos…"></textarea><label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
  async q=>{const name=q('#n').value.trim(),f=q('#f').value,pw=q('#p').value;let parts=[];
   if(f=='duo'){for(const r of d.querySelectorAll('#dl .row')){const a=r.querySelector('.d1').value.replace(/&/g,'').trim(),b=r.querySelector('.d2').value.replace(/&/g,'').trim();if(!a&&!b)continue;if(!a||!b)return toast('Cada dúo necesita dos jugadores');parts.push(a+' & '+b)}}
   else parts=q('#l').value.split('\n').map(x=>x.replace(/&/g,'').trim()).filter(Boolean);
@@ -154,7 +156,7 @@ function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class
  const d=[...document.querySelectorAll('.modal')].pop(),pl=d.querySelector('#pl'),f=d.querySelector('#f');
  const rend=()=>{if(f.value=='duo'){pl.innerHTML='<label class="mu">Dúos (dos jugadores por dúo)</label><div id="dl"></div><button class="g" style="color:var(--ac);margin-bottom:10px" id="ad">+ Añadir dúo</button>';const dl=pl.querySelector('#dl'),add=()=>{const r=document.createElement('div');r.className='row';r.style.marginBottom='0';r.innerHTML='<input class="d1" placeholder="Jugador 1" style="flex:1;min-width:0"><input class="d2" placeholder="Jugador 2" style="flex:1;min-width:0">';dl.appendChild(r)};add();add();pl.querySelector('#ad').onclick=add}else pl.innerHTML='<label class="mu">Participantes (uno por línea)</label><textarea id="l" rows="8"></textarea>'};
  f.onchange=rend;rend()}
-const IC={bo3:'⚔️',sd:'⚡',duo:'🤝'};
+const IC={bo3:'⚔️',sd:'⚡',mix:'🔥',duo:'🤝'};
 const lk=s=>s.replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
 function fmt(s){let o='',n=0;for(const raw of String(s||'').split('\n')){const l=raw.trim();if(!l)continue;const m=l.match(/^(?:[-•*]|(\d+)[.)])\s+(.*)$/);
  if(m)o+=`<div class="li" style="animation-delay:${Math.min(n++,12)*.05}s"><i>${m[1]||'✦'}</i><span>${lk(E(m[2]))}</span></div>`;
@@ -202,7 +204,7 @@ const rn=(r,n)=>r==n-1?'Final':r==n-2?'Semifinales':r==n-3?'Cuartos':'Ronda '+(r
 const D=(r,i,k,v)=>`data-a="${E(JSON.stringify([r,i,k,v]))}"`;
 function card(t,r,i,m,ed){
  const w=win(m,t),can=ed&&m.a&&m.b,A=m.a?E(m.a):'<span class="mu">Por definir</span>',B=m.b?E(m.b):(m.a&&r==0?'<span class="mu">BYE</span>':'<span class="mu">Por definir</span>');
- if(t.fmt=='sd'){const row=(n,nm,v)=>`<div class="p ${w&&w==nm?'win':''}"><b>${n}</b>${w&&w==nm?'<span class="sc">✓</span>':''}${can&&!w?`<button class="s" ${D(r,i,'s',v)}>Gana</button>`:''}</div>`;return `<div class="m">${row(A,m.a,1)}${row(B,m.b,2)}${can&&w?`<div class="gl" style="grid-template-columns:1fr"><button ${D(r,i,'x',0)}>↺ Deshacer</button></div>`:''}</div>`}
+ if(t.fmt=='sd'||(t.fmt=='mix'&&!isB(t,m))){const row=(n,nm,v)=>`<div class="p ${w&&w==nm?'win':''}"><b>${n}</b>${w&&w==nm?'<span class="sc">✓</span>':''}${can&&!w?`<button class="s" ${D(r,i,'s',v)}>Gana</button>`:''}</div>`;return `<div class="m">${row(A,m.a,1)}${row(B,m.b,2)}${can&&w?`<div class="gl" style="grid-template-columns:1fr"><button ${D(r,i,'x',0)}>↺ Deshacer</button></div>`:''}</div>`}
  if(t.fmt!='duo'){const row=(n,nm,sc,v)=>`<div class="p ${w&&w==nm?'win':''}"><b>${n}</b><span class="sc">${sc}</span>${can?`<button class="s" ${D(r,i,'s',v)}>+</button><button class="s" ${D(r,i,'s',-v)}>−</button>`:''}</div>`;
   return `<div class="m">${row(A,m.a,m.a&&m.b?m.sa:'',1)}${row(B,m.b,m.a&&m.b?m.sb:'',2)}</div>`}
   const[pa,pb]=pts(m),pl=x=>(x||'').split('&').map(s=>s.trim()),a=pl(m.a),b=pl(m.b),pr=[[0,0],[1,1],[0,1],[1,0]],sh=s=>E((s||'').slice(0,12)),pj=m.g.filter(x=>x).length,both=m.a&&m.b;
@@ -230,9 +232,9 @@ function draw(){
  let h=hero(t)+itab(t)+`<div class="row"><button class="g" style="color:var(--tx)" onclick="go(null)">← Volver</button><span style="flex:1"></span>`;
  if(adm)h+=ed?'<button onclick="editP()">👥 Participantes</button><button class="g" style="color:var(--tx)" onclick="editT()">⚙️ Ajustes</button><button class="g" style="color:var(--tx)" onclick="regen()">Regenerar llaves</button><button class="d" onclick="del()">Eliminar</button>':'<button onclick="unlock()">🔒 Desbloquear para editar</button>';
  h+='</div>'+(c?(boom(t.id+c),`<div class="champ">🎉 🏆 Campeón: ${E(c)} 🏆 🎉</div>`):'');
- let br='<div class="bracket">';t.rounds.forEach((R,r)=>{br+=`<div class="col"><h3>${rn(r,n)}</h3>`+'<div class="slots">'+R.map((m,i)=>'<div class="sl">'+card(t,r,i,m,ed)+'</div>').join('')+'</div></div>'});br+='</div>';
+ let br='<div class="bracket">';t.rounds.forEach((R,r)=>{br+=`<div class="col"><h3>${rn(r,n)}</h3>`+(t.fmt=='mix'?`<div class="mu" style="font-size:11px;text-align:center;margin:-4px 0 6px">${r>=n-2?'Bo3':'Muerte súbita'}</div>`:'')+'<div class="slots">'+R.map((m,i)=>'<div class="sl">'+card(t,r,i,m,ed)+'</div>').join('')+'</div></div>'});br+='</div>';
  if(t.fmt=='duo'){h+=`<div class="row"><button class="g" style="color:var(--tx)" onclick="tabOpen=!tabOpen;draw()">${tabOpen?'▾ Ocultar tabla de puntuación':'▸ Ver tabla de puntuación'}</button></div>`;if(!tabOpen)h+=br;else{const S=stand(t);h+=`<div class="wrap"><div class="card st"><h3 style="margin:0 0 8px">Tabla de puntuación</h3><table><tr><th>#</th><th>Dúo</th><th title="Combates jugados">Jug.</th><th title="Ganados">G</th><th title="Empatados">E</th><th title="Perdidos">P</th><th title="Puntos">Pts</th></tr>${S.map((s,k)=>`<tr class="${s.out?'out':''}"><td>${s.pt&&k<3?['🥇','🥈','🥉'][k]:k+1}</td><td><b>${E(s.n)}</b><br><small>${c==s.n?'🏆 Campeón':s.out?'🔴 Eliminado':'🟢 En competencia'}</small></td><td>${s.g+s.e+s.p}</td><td>${s.g}</td><td>${s.e}</td><td>${s.p}</td><td class="pt">${s.pt}</td></tr>`).join('')}</table><div class="lg"><b>📖 Cómo leer la tabla</b><ul><li><b>Jug.</b> combates jugados · <b>G</b> ganados · <b>E</b> empatados · <b>P</b> perdidos · <b>Pts</b> puntos.</li><li>Cada enfrentamiento entre dos dúos son <b>4 combates</b>. Victoria = 3 pts, empate = 1 pt para cada uno, derrota = 0.</li><li>Gana el enfrentamiento el dúo con <b>más puntos</b>. Si empatan, se juega una <b>muerte súbita</b>.</li><li>La tabla suma todos los combates del dúo. <b>Avanza quien gana su enfrentamiento</b>, no necesariamente quien acumula más puntos.</li></ul></div></div><div style="min-width:0">${br}</div></div>`}}
- else h+=br+(t.fmt=='bo3'?'<p class="mu">Gana quien llegue primero a 2 victorias.</p>':'');
+ else h+=br+(t.fmt=='bo3'?'<p class="mu">Gana quien llegue primero a 2 victorias.</p>':t.fmt=='mix'?'<p class="mu">Rondas iniciales: muerte súbita (1 combate). Semifinales y final: Bo3, gana quien llegue primero a 2 victorias.</p>':'');
  A.innerHTML=h}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;try{doAct(...JSON.parse(b.dataset.a))}catch(err){toast('Error: '+err.message)}});
 draw();loadT();setInterval(()=>{if(!document.hidden)loadT()},20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadT()});
