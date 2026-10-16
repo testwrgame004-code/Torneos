@@ -58,7 +58,7 @@ export async function onRequest({ request, env }) {
         if (!sup && !(await check(old, body.tp))) return bad();
       }
       const d = {
-        id: doc.id, name: String(doc.name || '').slice(0, 60), fmt: ['bo3', 'sd', 'duo'].includes(doc.fmt) ? doc.fmt : 'sd',
+        id: doc.id, name: String(doc.name || '').slice(0, 60), fmt: ['bo3', 'sd', 'mix', 'duo'].includes(doc.fmt) ? doc.fmt : 'sd',
         parts: (Array.isArray(doc.parts) ? doc.parts : []).slice(0, 128).map(s => String(s).slice(0, 60)),
         ms: (Array.isArray(doc.ms) ? doc.ms : []).slice(0, 300), info: typeof doc.info === 'string' ? doc.info.slice(0, 3000) : (old ? old.info || '' : ''), rules: typeof doc.rules === 'string' ? doc.rules.slice(0, 3000) : (old ? old.rules || '' : ''),
         created: old ? old.created : Date.now(), upd: Number(doc.upd) || Date.now(),
