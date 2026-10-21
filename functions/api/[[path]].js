@@ -20,7 +20,7 @@ export async function onRequest({ request, env }) {
     if (method === 'GET' && path === 'torneos') {
       const hit = await caches.default.match(listKey); if (hit) return hit;
       const h = (await R('HGETALL', P + 't')) || [], out = [];
-      for (let i = 0; i < h.length; i += 2) { const d = JSON.parse(h[i + 1]); d.img = imgUrl(d); delete d.ph; delete d.salt; delete d.iv; out.push(d) }
+      for (let i = 0; i < h.length; i += 2) { const d = JSON.parse(h[i + 1]); d.img = imgUrl(d); delete d.ph; delete d.salt; delete d.iv; delete d.gi; out.push(d) }
       const res = J(out, 200, { 'cache-control': 'public, max-age=8' });
       await caches.default.put(listKey, res.clone()); return res;
     }
@@ -42,7 +42,7 @@ export async function onRequest({ request, env }) {
     if (path === 'delete') {
       const d = await load(body.id); if (!d) return J({ error: 'No existe' }, 404);
       if (!isSuper(body.sp) && !(await check(d, body.tp))) return bad();
-      await R('HDEL', P + 't', d.id); await R('DEL', P + 'i:' + d.id); await caches.default.delete(listKey); return J({ ok: 1 });
+      await R('HDEL', P + 't', d.id); await R('DEL', P + 'i:' + d.id); for (const k of d.gi || []) await R('DEL', P + 'i:' + d.id + ':' + k); await caches.default.delete(listKey); return J({ ok: 1 });
     }
     if (path === 'save') {
       const doc = body.doc, sup = isSuper(body.sp);
@@ -64,11 +64,21 @@ export async function onRequest({ request, env }) {
         created: old ? old.created : Date.now(), upd: Number(doc.upd) || Date.now(),
         by: (body.create || sup) ? String(doc.by || '').slice(0, 24) : old.by, ph: old ? old.ph : '', salt: old ? old.salt : '', iv: old ? old.iv : 0
       };
+      // Imágenes insertadas en info/reglas: se referencian como img:TOKEN y se guardan en Redis (máx. 10 por torneo).
+      const used = new Set([...(d.info + ' ' + d.rules).matchAll(/img:([a-z0-9]{4,12})/g)].map(m => m[1]));
+      const imgs = body.imgs && typeof body.imgs === 'object' ? body.imgs : {};
+      const add = Object.keys(imgs).filter(k => /^[a-z0-9]{4,12}$/.test(k) && used.has(k)).slice(0, 10);
+      for (const k of add) if (typeof imgs[k] !== 'string' || !/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(imgs[k]) || imgs[k].length > 200000) return J({ error: 'Imagen inválida o demasiado grande' }, 413);
+      const oldGi = old && Array.isArray(old.gi) ? old.gi : [];
+      d.gi = [...new Set([...oldGi.filter(k => used.has(k)), ...add])];
+      if (d.gi.length > 10) return J({ error: 'Máximo 10 imágenes por torneo' }, 400);
       if (body.create || (sup && body.newpw)) { d.salt = crypto.randomUUID(); d.ph = await sha(d.salt + ':' + (body.create ? body.pw : body.newpw)) }
       if (typeof doc.img === 'string' && doc.img.startsWith('data:image/')) {
         if (doc.img.length > 200000) return J({ error: 'Imagen demasiado grande' }, 413);
         await R('SET', P + 'i:' + d.id, doc.img); d.iv = Date.now();
       } else if (doc.img === '' && d.iv) { await R('DEL', P + 'i:' + d.id); d.iv = 0 }
+      for (const k of add) await R('SET', P + 'i:' + d.id + ':' + k, imgs[k]);
+      for (const k of oldGi) if (!used.has(k)) await R('DEL', P + 'i:' + d.id + ':' + k);
       await R('HSET', P + 't', d.id, JSON.stringify(d)); await caches.default.delete(listKey);
       return J({ ok: 1, img: imgUrl(d) });
     }
