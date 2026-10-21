@@ -119,7 +119,7 @@ button{transition:filter .15s,transform .15s}button:hover:not(:disabled){filter:
 <header><h1 onclick="go(null)" class="logo"><img class="pb" alt="" src="pokeball.png"><span class="lt"><b>TORNEOS</b><small>TCG POCKET</small></span></h1><span id="hb"></span></header>
 <main id="app"></main><div id="toast"></div>
 <script>
-let adminName='',ip='',tabOpen=false,tk='',SU=false,GP='',SP='',tp={},T=[],cur=null,adm=false,unl=new Set(),ready=false;
+let adminName='',ip='',pend={},tabOpen=false,tk='',SU=false,GP='',SP='',tp={},T=[],cur=null,adm=false,unl=new Set(),ready=false;
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const FM={bo3:'Mejor de 3 (Bo3)',sd:'Muerte súbita',mix:'Muerte súbita + Bo3',duo:'Dúos 2vs2'};
 // En 'mix', las dos últimas rondas (semifinales y final) son Bo3; las demás, muerte súbita.
@@ -159,13 +159,13 @@ function login(){ask('Modo admin','<input id="p" type="password" placeholder="Co
 function unlock(){const t=cur_t();ask('Contraseña del torneo','<input id="p" type="password" placeholder="Contraseña de «'+E(t.name)+'»">',async q=>{const v=q('#p').value;try{await api('POST','/auth',{id:t.id,tp:v});tp[t.id]=v;unl.add(t.id);draw();return true}catch(e){toast(e.message)}})}
 const canE=id=>SU||unl.has(id);
 function logout(){adm=false;SU=false;GP='';SP='';tp={};unl.clear();draw()}
-function editT(){const t=cur_t();
- ask('Ajustes del torneo','<label class="mu">Nombre</label><input id="n" value="'+E(t.name)+'"><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local" value="'+(t.start?tl(t.start):'')+'"><label class="mu">Información del torneo</label><textarea id="ti" rows="4" maxlength="6000">'+E(t.info)+'</textarea><label class="mu">Reglas del torneo</label><textarea id="tr" rows="4" maxlength="6000">'+E(t.rules)+'</textarea>'+HELP+'<label class="mu">Cambiar imagen (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu"><input type="checkbox" id="ri" style="width:auto"> Quitar imagen</label>'+(SU?'<label class="mu">Creador</label><input id="cr" value="'+E(t.by||'')+'"><label class="mu">Nueva contraseña del torneo (vacío = no cambiar)</label><input id="np" type="password">':''),async q=>{
+function editT(){const t=cur_t();pend={};
+ ask('Ajustes del torneo','<label class="mu">Nombre</label><input id="n" value="'+E(t.name)+'"><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local" value="'+(t.start?tl(t.start):'')+'"><label class="mu">Información del torneo</label><textarea id="ti" rows="4" maxlength="6000">'+E(t.info)+'</textarea>'+imgUp('ti')+'<label class="mu">Reglas del torneo</label><textarea id="tr" rows="4" maxlength="6000">'+E(t.rules)+'</textarea>'+imgUp('tr')+HELP+'<label class="mu">Cambiar imagen (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu"><input type="checkbox" id="ri" style="width:auto"> Quitar imagen</label>'+(SU?'<label class="mu">Creador</label><input id="cr" value="'+E(t.by||'')+'"><label class="mu">Nueva contraseña del torneo (vacío = no cambiar)</label><input id="np" type="password">':''),async q=>{
   const n=q('#n').value.trim();if(!n)return toast('Pon un nombre');const f=q('#im').files[0];
   t.name=n;t.start=q('#sd').value?new Date(q('#sd').value).getTime():0;t.info=q('#ti').value.trim();t.rules=q('#tr').value.trim();if(f)t.img=await shrink(f);else if(q('#ri').checked)t.img='';
   if(SU)t.by=q('#cr').value.trim();const np=SU?q('#np').value:'';
-  if(!await save(t,undefined,np?{newpw:np}:{}))return;draw();return true})}
-function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="mix">Muerte súbita + Bo3 (semifinales y final en Bo3)</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local"><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="6000" placeholder="Fecha, premios, cómo inscribirse…"></textarea><label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="6000" placeholder="Reglas, restricciones, tiempos…"></textarea>'+HELP+'<label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
+  if(!await save(t,undefined,{...(np?{newpw:np}:{}),imgs:usedImgs(t)}))return;pend={};draw();return true})}
+function newT2(){if(!adminName)return setName();pend={};ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="mix">Muerte súbita + Bo3 (semifinales y final en Bo3)</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local"><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="6000" placeholder="Fecha, premios, cómo inscribirse…"></textarea>'+imgUp('ti')+'<label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="6000" placeholder="Reglas, restricciones, tiempos…"></textarea>'+imgUp('tr')+HELP+'<label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
  async q=>{const name=q('#n').value.trim(),f=q('#f').value,pw=q('#p').value;let parts=[];
   if(f=='duo'){for(const r of d.querySelectorAll('#dl .row')){const a=r.querySelector('.d1').value.replace(/&/g,'').trim(),b=r.querySelector('.d2').value.replace(/&/g,'').trim();if(!a&&!b)continue;if(!a||!b)return toast('Cada dúo necesita dos jugadores');parts.push(a+' & '+b)}}
   else parts=q('#l').value.split('\n').map(x=>x.replace(/&/g,'').trim()).filter(Boolean);
@@ -173,7 +173,7 @@ function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class
   if(!name||pw.length<3)return toast('Pon nombre y contraseña (mín. 3)');
   if(parts.length<2)return toast('Mínimo 2 participantes');
   const sv=q('#sd').value;if(!sv)return toast('Pon la fecha y hora de inicio');
-  const t={id:'t'+Date.now().toString(36),name,fmt:f,parts,start:new Date(sv).getTime(),info:q('#ti').value.trim(),rules:q('#tr').value.trim(),created:Date.now(),by:adminName,img:q('#im')&&q('#im').files[0]?await shrink(q('#im').files[0]):''};build(t);tp[t.id]=pw;unl.add(t.id);if(!await save(t,pw))return;cur=t.id;draw();return true});
+  const t={id:'t'+Date.now().toString(36),name,fmt:f,parts,start:new Date(sv).getTime(),info:q('#ti').value.trim(),rules:q('#tr').value.trim(),created:Date.now(),by:adminName,img:q('#im')&&q('#im').files[0]?await shrink(q('#im').files[0]):''};build(t);tp[t.id]=pw;unl.add(t.id);if(!await save(t,pw,{imgs:usedImgs(t)}))return;pend={};cur=t.id;draw();return true});
  const d=[...document.querySelectorAll('.modal')].pop(),pl=d.querySelector('#pl'),f=d.querySelector('#f');
  const rend=()=>{if(f.value=='duo'){pl.innerHTML='<label class="mu">Dúos (dos jugadores por dúo)</label><div id="dl"></div><button class="g" style="color:var(--ac);margin-bottom:10px" id="ad">+ Añadir dúo</button>';const dl=pl.querySelector('#dl'),add=()=>{const r=document.createElement('div');r.className='row';r.style.marginBottom='0';r.innerHTML='<input class="d1" placeholder="Jugador 1" style="flex:1;min-width:0"><input class="d2" placeholder="Jugador 2" style="flex:1;min-width:0">';dl.appendChild(r)};add();add();pl.querySelector('#ad').onclick=add}else pl.innerHTML='<label class="mu">Participantes (uno por línea)</label><textarea id="l" rows="8"></textarea>'};
  f.onchange=rend;rend()}
@@ -195,12 +195,12 @@ function inl(s){const K=[],tk=x=>'\u0001'+(K.push(x)-1)+'\u0002';
  s=fx(s);for(let i=0;i<3;i++)s=s.replace(/\u0001(\d+)\u0002/g,(m,j)=>K[j]);return s}
 function tbl(R){const rows=R.map(r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim())).filter(c=>!c.every(x=>/^:?-{2,}:?$/.test(x)));if(!rows.length)return '';const[hd,...bd]=rows;
  return `<div class="tw"><table class="tb"><thead><tr>${hd.map(c=>`<th>${inl(c)}</th>`).join('')}</tr></thead><tbody>${bd.map(r=>`<tr>${r.map(c=>`<td>${inl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
-function fmt(s){let o='',n=0,tb=null;const dl=()=>`style="animation-delay:${Math.min(n++,12)*.05}s"`,fl=()=>{if(tb){o+=tbl(tb);tb=null}};
+function fmt(s,id){let o='',n=0,tb=null;const dl=()=>`style="animation-delay:${Math.min(n++,12)*.05}s"`,fl=()=>{if(tb){o+=tbl(tb);tb=null}};
  const bx=(c,i,t)=>`<div class="bx ${c}" ${dl()}><span>${i}</span><div>${inl(t)}</div></div>`;
  for(const raw of String(s||'').replace(/\r/g,'').split('\n')){const l=raw.trim();let m;
   if(l[0]=='|'){(tb=tb||[]).push(l);continue}
   fl();if(!l)continue;
-  if(m=l.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)|]+|\/(?!\/)[^\s)|]+)(?:\|(\d{1,3}))?\)$/)){const w=Math.max(10,Math.min(100,+m[3]||100)),u=E(m[2]);
+  if(m=l.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)|]+|\/(?!\/)[^\s)|]+|img:[a-z0-9]{4,12})(?:\|(\d{1,3}))?\)$/)){const w=Math.max(10,Math.min(100,+m[3]||100)),u=E(m[2].startsWith('img:')?'/api/img/'+id+':'+m[2].slice(4):m[2]);
    o+=`<figure class="im" style="max-width:${w}%"><a href="${u}" target="_blank" rel="noopener noreferrer"><img src="${u}" alt="${E(m[1])}" loading="lazy" referrerpolicy="no-referrer" onerror="this.alt='⚠️ No se pudo cargar la imagen';this.style.opacity=.4"></a>${m[1]?`<figcaption>${E(m[1])}</figcaption>`:''}</figure>`}
   else if(m=l.match(/^\[\[(.+?)\|(https?:\/\/[^\s\]]+)\]\]$/))o+=`<div class="ctr"><a class="bt" href="${E(m[2])}" target="_blank" rel="noopener noreferrer">${inl(m[1])}</a></div>`;
   else if(/^-{3,}$/.test(l)||/^_{3,}$/.test(l))o+='<div class="sp">✦</div>';
@@ -223,11 +223,23 @@ const HELP=`<details class="hp"><summary>❓ Ayuda de formato</summary><div styl
 <b>Color/tamaño:</b> <code>{rojo:texto}</code> (rojo, azul, verde, dorado, morado, rosa, naranja, celeste, gris) · <code>{grande:texto}</code> <code>{enorme:texto}</code> <code>{pequeno:texto}</code><br>
 <b>Efectos:</b> <code>{brillo:texto}</code> <code>{arcoiris:texto}</code> <code>{latido:texto}</code> <code>{neon:texto}</code><br>
 <b>Enlaces:</b> <code>[texto](https://...)</code> · botón <code>[[Texto|https://...]]</code><br>
-<b>Imagen:</b> <code>![descripción](https://.../foto.png)</code> · con ancho <code>![desc](https://...png|50)</code><br>
+<b>Imagen:</b> botón <b>📷 Insertar imagen</b> (sube desde tu dispositivo y pone la línea sola) · o por enlace <code>![descripción](https://.../foto.png)</code> · ancho: <code>![desc](img:abc123|50)</code><br>
 <b>Tabla:</b> <code>| Puesto | Premio |</code> (la 1.ª fila es el encabezado)</div></details>`;
 function itab(t){const b=[['i','ℹ️ Información',t.info],['r','📜 Reglas',t.rules]].filter(x=>x[2]);if(!b.length)return '';
- return `<div class="row">${b.map(([k,l])=>`<button class="${ip==k?'':'g'}" style="${ip==k?'':'color:var(--tx)'}" onclick="ip=ip=='${k}'?'':'${k}';draw()">${l} ${ip==k?'▾':'▸'}</button>`).join('')}</div>`+(ip?`<div class="card ib"><div class="ti">${ip=='i'?'ℹ️ Información del torneo':'📜 Reglas del torneo'}</div>${fmt(ip=='i'?t.info:t.rules)}</div>`:'')}
+ return `<div class="row">${b.map(([k,l])=>`<button class="${ip==k?'':'g'}" style="${ip==k?'':'color:var(--tx)'}" onclick="ip=ip=='${k}'?'':'${k}';draw()">${l} ${ip==k?'▾':'▸'}</button>`).join('')}</div>`+(ip?`<div class="card ib"><div class="ti">${ip=='i'?'ℹ️ Información del torneo':'📜 Reglas del torneo'}</div>${fmt(ip=='i'?t.info:t.rules,t.id)}</div>`:'')}
 function hero(t){return `<div class="hero"${t.img?` style="background-image:linear-gradient(0deg,#0009,#0002),url(${t.img})"`:''}><div class="hi"><span class="tag">${IC[t.fmt]} ${FM[t.fmt]}</span><h1>${E(t.name)}</h1><div>👤 Creado por <b>${E(t.by||'—')}</b> · ${t.parts.length} ${t.fmt=='duo'?'dúos':'participantes'}</div>${t.start?`<div>📅 ${t.start>Date.now()?'Inicia':'Inició'}: <b>${fdt(t.start)}</b></div>`:''}</div></div>`}
+function shrinkFit(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+ for(const[mw,q]of[[900,.8],[900,.65],[700,.65],[560,.6],[420,.55]]){const W=Math.min(mw,im.width),H=Math.round(im.height*W/im.width),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);x.drawImage(im,0,0,W,H);const u=c.toDataURL('image/jpeg',q);if(u.length<=190000)return res(u)}res('')};
+ im.onerror=()=>res('');im.src=r.result};r.onerror=()=>res('');r.readAsDataURL(f)})}
+const imgUp=id=>`<label class="mu" style="display:block;cursor:pointer;color:var(--ac);font-weight:600">📷 Insertar imagen desde tu dispositivo<input type="file" accept="image/*" style="display:none" onchange="addImg(this,'${id}')"></label>`;
+async function addImg(inp,id){const f=inp.files[0];inp.value='';if(!f)return;const ta=document.getElementById(id);if(!ta)return;
+ const g=k=>(document.getElementById(k)||{value:''}).value;
+ if(((g('ti')+' '+g('tr')).match(/img:[a-z0-9]{4,12}/g)||[]).length>=10)return toast('Máximo 10 imágenes por torneo');
+ toast('Procesando imagen…');const u=await shrinkFit(f);if(!u)return toast('No se pudo procesar la imagen');
+ const tok=(Math.random().toString(36)+'000000').slice(2,8);pend[tok]=u;
+ const p=ta.selectionStart??ta.value.length,pre=ta.value.slice(0,p),ins=(pre&&!pre.endsWith('\n')?'\n':'')+`![descripción](img:${tok})\n`;
+ ta.value=pre+ins+ta.value.slice(p);ta.focus();toast('Imagen agregada ✓ (se sube al guardar)')}
+const usedImgs=t=>{const u={};((t.info||'')+' '+(t.rules||'')).replace(/img:([a-z0-9]{4,12})/g,(m,k)=>{if(pend[k])u[k]=pend[k]});return u};
 function shrink(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const W=640,H=360,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),s=Math.max(W/im.width,H/im.height),w=im.width*s,h=im.height*s;x.drawImage(im,(W-w)/2,(H-h)/2,w,h);res(c.toDataURL('image/jpeg',.72))};im.onerror=()=>res('');im.src=r.result};r.onerror=()=>res('');r.readAsDataURL(f)})}
 function setName(){let sv='';try{sv=localStorage.getItem('adm')||''}catch(e){}ask('¿Cómo te llamas? (se verá como creador de tus torneos)','<input id="u" maxlength="24" placeholder="Tu nombre de admin" value="'+E(sv)+'">',async q=>{const v=q('#u').value.trim();if(!v)return toast('Escribe un nombre');adminName=v;try{localStorage.setItem('adm',v)}catch(e){}draw();return true})}
 const clean=m=>!m.sa&&!m.sb&&!m.sd&&m.g.every(x=>!x);
