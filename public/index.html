@@ -94,6 +94,25 @@ button{transition:filter .15s,transform .15s}button:hover:not(:disabled){filter:
 .ib p{margin:6px 0}.ib a{color:var(--ac);font-weight:600;text-decoration:underline}
 .ib .li{display:flex;gap:11px;align-items:flex-start;margin:7px 0;padding:9px 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);animation:up .4s both;transition:transform .2s,border-color .2s}.ib .li:hover{transform:translateX(4px);border-color:var(--ac)}
 .ib .li i{flex:none;min-width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6d4aff,#c04dff);color:#fff;font:700 12px/24px system-ui;text-align:center;font-style:normal;box-shadow:0 2px 8px #6d4aff66}
+.ib .t1{font-size:22px;margin:18px 0 8px;font-weight:800;padding-bottom:6px;background:linear-gradient(110deg,#6d4aff,#c04dff,#f5b301);-webkit-background-clip:text;background-clip:text;color:transparent;border-bottom:3px solid;border-image:linear-gradient(90deg,#6d4aff,#c04dff,transparent) 1}
+.ib h5{margin:12px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--mu)}
+.ib .ct{text-align:center}
+.ib blockquote{margin:10px 0;padding:10px 16px;border-left:4px solid var(--ac);border-radius:0 12px 12px 0;background:linear-gradient(90deg,#6d4aff1f,transparent);font-style:italic}
+.ib .sp{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--ac2)}.ib .sp::before,.ib .sp::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
+.ib .bx{display:flex;gap:10px;align-items:flex-start;margin:9px 0;padding:11px 14px;border-radius:12px;border:1px solid;border-left-width:5px;animation:up .4s both}.ib .bx>span{flex:none}
+.ib .bx.w{background:#f5b30118;border-color:#f5b301}.ib .bx.r{background:#ff4d6d18;border-color:#ff4d6d}.ib .bx.b{background:#3b9cff18;border-color:#3b9cff}.ib .bx.g{background:#2ecc7118;border-color:#2ecc71}
+.ib .li i.ck{background:transparent;color:#fff;border:2px solid var(--ac);box-shadow:none;line-height:20px;font-size:13px}.ib .li i.ck.on{background:#2ecc71;border-color:#2ecc71}
+.ib figure.im{margin:12px auto;text-align:center}.ib figure.im img{max-width:100%;border-radius:14px;border:1px solid var(--bd);box-shadow:0 6px 20px #0003;transition:transform .25s}.ib figure.im img:hover{transform:scale(1.02)}.ib figcaption{font-size:12px;color:var(--mu);margin-top:6px}
+.ib .ctr{text-align:center;margin:12px 0}.ib a.bt{display:inline-block;padding:11px 24px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;background:linear-gradient(135deg,#6d4aff,#c04dff);box-shadow:0 6px 18px #6d4aff66;transition:transform .2s}.ib a.bt:hover{transform:translateY(-2px) scale(1.04)}
+.ib .tw{overflow-x:auto;margin:10px 0}.ib .tb{border-collapse:separate;border-spacing:0;width:100%;border:1px solid var(--bd);border-radius:12px;overflow:hidden}.ib .tb th{background:linear-gradient(135deg,#6d4aff,#c04dff);color:#fff;padding:9px 12px;text-align:left;font-size:13px}.ib .tb td{padding:9px 12px;border-top:1px solid var(--bd)}.ib .tb tr:nth-child(even) td{background:#6d4aff0d}
+.ib mark{background:linear-gradient(transparent 38%,#f5b30199 38%);color:inherit;padding:0 3px;border-radius:3px}
+.ib code,.hp code{background:var(--w);border:1px solid var(--bd);padding:1px 6px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:.9em}
+.ib .s-sm{font-size:.8em}.ib .s-lg{font-size:1.35em}.ib .s-xl{font-size:1.9em;line-height:1.2}
+.ib .fx-brillo,.ib .fx-arcoiris{background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;animation:shine 3s linear infinite}
+.ib .fx-brillo{background-image:linear-gradient(90deg,#6d4aff,#f5b301,#c04dff,#6d4aff)}.ib .fx-arcoiris{background-image:linear-gradient(90deg,#ff4d6d,#f5b301,#2ecc71,#3b9cff,#c04dff,#ff4d6d)}
+.ib .fx-latido{display:inline-block;animation:beat 1.2s ease-in-out infinite}.ib .fx-neon{color:#c04dff;font-weight:700;text-shadow:0 0 6px #c04dff,0 0 16px #6d4aff}
+.hp{margin:8px 0}.hp summary{cursor:pointer;font-size:13px;color:var(--ac);font-weight:600}
+@keyframes shine{to{background-position:300% 0}}@keyframes beat{50%{transform:scale(1.15)}}
 @keyframes drop{from{opacity:0;transform:translateY(-12px) scaleY(.94)}}
 .st td small{color:var(--mu)}.st td b{font-weight:700}
 </style></head><body>
@@ -141,12 +160,12 @@ function unlock(){const t=cur_t();ask('Contraseña del torneo','<input id="p" ty
 const canE=id=>SU||unl.has(id);
 function logout(){adm=false;SU=false;GP='';SP='';tp={};unl.clear();draw()}
 function editT(){const t=cur_t();
- ask('Ajustes del torneo','<label class="mu">Nombre</label><input id="n" value="'+E(t.name)+'"><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local" value="'+(t.start?tl(t.start):'')+'"><label class="mu">Información del torneo</label><textarea id="ti" rows="4" maxlength="3000">'+E(t.info)+'</textarea><label class="mu">Reglas del torneo</label><textarea id="tr" rows="4" maxlength="3000">'+E(t.rules)+'</textarea><label class="mu">Cambiar imagen (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu"><input type="checkbox" id="ri" style="width:auto"> Quitar imagen</label>'+(SU?'<label class="mu">Creador</label><input id="cr" value="'+E(t.by||'')+'"><label class="mu">Nueva contraseña del torneo (vacío = no cambiar)</label><input id="np" type="password">':''),async q=>{
+ ask('Ajustes del torneo','<label class="mu">Nombre</label><input id="n" value="'+E(t.name)+'"><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local" value="'+(t.start?tl(t.start):'')+'"><label class="mu">Información del torneo</label><textarea id="ti" rows="4" maxlength="6000">'+E(t.info)+'</textarea><label class="mu">Reglas del torneo</label><textarea id="tr" rows="4" maxlength="6000">'+E(t.rules)+'</textarea>'+HELP+'<label class="mu">Cambiar imagen (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu"><input type="checkbox" id="ri" style="width:auto"> Quitar imagen</label>'+(SU?'<label class="mu">Creador</label><input id="cr" value="'+E(t.by||'')+'"><label class="mu">Nueva contraseña del torneo (vacío = no cambiar)</label><input id="np" type="password">':''),async q=>{
   const n=q('#n').value.trim();if(!n)return toast('Pon un nombre');const f=q('#im').files[0];
   t.name=n;t.start=q('#sd').value?new Date(q('#sd').value).getTime():0;t.info=q('#ti').value.trim();t.rules=q('#tr').value.trim();if(f)t.img=await shrink(f);else if(q('#ri').checked)t.img='';
   if(SU)t.by=q('#cr').value.trim();const np=SU?q('#np').value:'';
   if(!await save(t,undefined,np?{newpw:np}:{}))return;draw();return true})}
-function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="mix">Muerte súbita + Bo3 (semifinales y final en Bo3)</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local"><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="3000" placeholder="Fecha, premios, cómo inscribirse…"></textarea><label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="3000" placeholder="Reglas, restricciones, tiempos…"></textarea><label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
+function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class="mu">Nombre</label><input id="n"><label class="mu">Formato</label><select id="f"><option value="bo3">Mejor de 3 (Bo3)</option><option value="sd">Muerte súbita</option><option value="mix">Muerte súbita + Bo3 (semifinales y final en Bo3)</option><option value="duo">Dúos 2vs2</option></select><div id="pl"></div><label class="mu">Fecha y hora de inicio</label><input id="sd" type="datetime-local"><label class="mu">Información del torneo (opcional)</label><textarea id="ti" rows="4" maxlength="6000" placeholder="Fecha, premios, cómo inscribirse…"></textarea><label class="mu">Reglas del torneo (opcional)</label><textarea id="tr" rows="4" maxlength="6000" placeholder="Reglas, restricciones, tiempos…"></textarea>'+HELP+'<label class="mu">Imagen del torneo (opcional)</label><input id="im" type="file" accept="image/*"><label class="mu">Contraseña del torneo</label><input id="p" type="password">',
  async q=>{const name=q('#n').value.trim(),f=q('#f').value,pw=q('#p').value;let parts=[];
   if(f=='duo'){for(const r of d.querySelectorAll('#dl .row')){const a=r.querySelector('.d1').value.replace(/&/g,'').trim(),b=r.querySelector('.d2').value.replace(/&/g,'').trim();if(!a&&!b)continue;if(!a||!b)return toast('Cada dúo necesita dos jugadores');parts.push(a+' & '+b)}}
   else parts=q('#l').value.split('\n').map(x=>x.replace(/&/g,'').trim()).filter(Boolean);
@@ -161,11 +180,51 @@ function newT2(){if(!adminName)return setName();ask('Nuevo torneo','<label class
 const fdt=ms=>new Date(ms).toLocaleString('es',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
 const tl=ms=>{const d=new Date(ms),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())};
 const IC={bo3:'⚔️',sd:'⚡',mix:'🔥',duo:'🤝'};
-const lk=s=>s.replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
-function fmt(s){let o='',n=0;for(const raw of String(s||'').split('\n')){const l=raw.trim();if(!l)continue;const m=l.match(/^(?:[-•*]|(\d+)[.)])\s+(.*)$/);
- if(m)o+=`<div class="li" style="animation-delay:${Math.min(n++,12)*.05}s"><i>${m[1]||'✦'}</i><span>${lk(E(m[2]))}</span></div>`;
- else if(/^#+\s/.test(l)||(l.length<=50&&/:$/.test(l)))o+=`<h4>${lk(E(l.replace(/^#+\s*/,'')))}</h4>`;
- else o+=`<p>${lk(E(l))}</p>`}return o}
+const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const CL={rojo:'#ff4d6d',azul:'#3b9cff',verde:'#2ecc71',dorado:'#f5b301',amarillo:'#f5b301',morado:'#a06bff',rosa:'#ff6fb5',naranja:'#ff8a3d',celeste:'#35d0e0',gris:'#8a8fa3'};
+const SZ={pequeno:'sm',pequeño:'sm',grande:'lg',enorme:'xl'},FXN=['brillo','arcoiris','latido','neon'];
+// efectos dentro de una línea (el texto ya viene escapado)
+function fx(s){
+ s=s.replace(/\{([a-zñ]+):([^{}]+)\}/g,(m,k,t)=>has(CL,k)?`<span style="color:${CL[k]}">${t}</span>`:has(SZ,k)?`<span class="s-${SZ[k]}">${t}</span>`:FXN.includes(k)?`<span class="fx-${k}">${t}</span>`:m);
+ return s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/__(.+?)__/g,'<u>$1</u>').replace(/~~(.+?)~~/g,'<s>$1</s>').replace(/==(.+?)==/g,'<mark>$1</mark>').replace(/\*(?!\s)([^*]+?)\*/g,'<i>$1</i>')}
+function inl(s){const K=[],tk=x=>'\u0001'+(K.push(x)-1)+'\u0002';
+ s=E(String(s).replace(/[\u0001\u0002]/g,''));
+ s=s.replace(/`([^`]+)`/g,(m,c)=>tk('<code>'+c+'</code>'));
+ s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,(m,t,u)=>tk(`<a href="${u}" target="_blank" rel="noopener noreferrer">${fx(t)}</a>`));
+ s=s.replace(/https?:\/\/[^\s<\u0001]*[^\s<\u0001.,;:!?)]/g,u=>tk(`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`));
+ s=fx(s);for(let i=0;i<3;i++)s=s.replace(/\u0001(\d+)\u0002/g,(m,j)=>K[j]);return s}
+function tbl(R){const rows=R.map(r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim())).filter(c=>!c.every(x=>/^:?-{2,}:?$/.test(x)));if(!rows.length)return '';const[hd,...bd]=rows;
+ return `<div class="tw"><table class="tb"><thead><tr>${hd.map(c=>`<th>${inl(c)}</th>`).join('')}</tr></thead><tbody>${bd.map(r=>`<tr>${r.map(c=>`<td>${inl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function fmt(s){let o='',n=0,tb=null;const dl=()=>`style="animation-delay:${Math.min(n++,12)*.05}s"`,fl=()=>{if(tb){o+=tbl(tb);tb=null}};
+ const bx=(c,i,t)=>`<div class="bx ${c}" ${dl()}><span>${i}</span><div>${inl(t)}</div></div>`;
+ for(const raw of String(s||'').replace(/\r/g,'').split('\n')){const l=raw.trim();let m;
+  if(l[0]=='|'){(tb=tb||[]).push(l);continue}
+  fl();if(!l)continue;
+  if(m=l.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)|]+|\/(?!\/)[^\s)|]+)(?:\|(\d{1,3}))?\)$/)){const w=Math.max(10,Math.min(100,+m[3]||100)),u=E(m[2]);
+   o+=`<figure class="im" style="max-width:${w}%"><a href="${u}" target="_blank" rel="noopener noreferrer"><img src="${u}" alt="${E(m[1])}" loading="lazy" referrerpolicy="no-referrer" onerror="this.alt='⚠️ No se pudo cargar la imagen';this.style.opacity=.4"></a>${m[1]?`<figcaption>${E(m[1])}</figcaption>`:''}</figure>`}
+  else if(m=l.match(/^\[\[(.+?)\|(https?:\/\/[^\s\]]+)\]\]$/))o+=`<div class="ctr"><a class="bt" href="${E(m[2])}" target="_blank" rel="noopener noreferrer">${inl(m[1])}</a></div>`;
+  else if(/^-{3,}$/.test(l)||/^_{3,}$/.test(l))o+='<div class="sp">✦</div>';
+  else if(m=l.match(/^(#{1,3})\s+(.*)$/))o+=m[1].length==1?`<h3 class="t1">${inl(m[2])}</h3>`:m[1].length==2?`<h4>${inl(m[2])}</h4>`:`<h5>${inl(m[2])}</h5>`;
+  else if(m=l.match(/^>\s?(.*)$/))o+=`<blockquote>${inl(m[1])}</blockquote>`;
+  else if(m=l.match(/^!!\s+(.*)$/))o+=bx('r','⛔',m[1]);
+  else if(m=l.match(/^!\s+(.*)$/))o+=bx('w','⚠️',m[1]);
+  else if(m=l.match(/^\?\s+(.*)$/))o+=bx('b','💡',m[1]);
+  else if(m=l.match(/^\+\s+(.*)$/))o+=bx('g','✅',m[1]);
+  else if(m=l.match(/^\^\s+(.*)$/))o+=`<p class="ct">${inl(m[1])}</p>`;
+  else if(m=l.match(/^\[( |x|X)\]\s+(.*)$/))o+=`<div class="li" ${dl()}><i class="ck${m[1]==' '?'':' on'}">${m[1]==' '?'':'✓'}</i><span>${inl(m[2])}</span></div>`;
+  else if(m=l.match(/^(?:[-•*]|(\d+)[.)])\s+(.*)$/))o+=`<div class="li" ${dl()}><i>${m[1]||'✦'}</i><span>${inl(m[2])}</span></div>`;
+  else if(l.length<=50&&/:$/.test(l))o+=`<h4>${inl(l)}</h4>`;
+  else o+=`<p>${inl(l)}</p>`}
+ fl();return o}
+const HELP=`<details class="hp"><summary>❓ Ayuda de formato</summary><div style="font-size:12px;line-height:1.8">
+<b>Líneas:</b> <code># Título</code> <code>## Subtítulo</code> <code>### Menor</code> <code>- lista</code> <code>1. numerada</code> <code>[ ] / [x] casilla</code> <code>&gt; cita</code> <code>^ centrado</code> <code>---</code> separador<br>
+<b>Avisos:</b> <code>! aviso</code> <code>!! prohibido</code> <code>? consejo</code> <code>+ permitido</code><br>
+<b>Texto:</b> <code>**negrita**</code> <code>*cursiva*</code> <code>__subrayado__</code> <code>~~tachado~~</code> <code>==resaltado==</code> <code>\`código\`</code><br>
+<b>Color/tamaño:</b> <code>{rojo:texto}</code> (rojo, azul, verde, dorado, morado, rosa, naranja, celeste, gris) · <code>{grande:texto}</code> <code>{enorme:texto}</code> <code>{pequeno:texto}</code><br>
+<b>Efectos:</b> <code>{brillo:texto}</code> <code>{arcoiris:texto}</code> <code>{latido:texto}</code> <code>{neon:texto}</code><br>
+<b>Enlaces:</b> <code>[texto](https://...)</code> · botón <code>[[Texto|https://...]]</code><br>
+<b>Imagen:</b> <code>![descripción](https://.../foto.png)</code> · con ancho <code>![desc](https://...png|50)</code><br>
+<b>Tabla:</b> <code>| Puesto | Premio |</code> (la 1.ª fila es el encabezado)</div></details>`;
 function itab(t){const b=[['i','ℹ️ Información',t.info],['r','📜 Reglas',t.rules]].filter(x=>x[2]);if(!b.length)return '';
  return `<div class="row">${b.map(([k,l])=>`<button class="${ip==k?'':'g'}" style="${ip==k?'':'color:var(--tx)'}" onclick="ip=ip=='${k}'?'':'${k}';draw()">${l} ${ip==k?'▾':'▸'}</button>`).join('')}</div>`+(ip?`<div class="card ib"><div class="ti">${ip=='i'?'ℹ️ Información del torneo':'📜 Reglas del torneo'}</div>${fmt(ip=='i'?t.info:t.rules)}</div>`:'')}
 function hero(t){return `<div class="hero"${t.img?` style="background-image:linear-gradient(0deg,#0009,#0002),url(${t.img})"`:''}><div class="hi"><span class="tag">${IC[t.fmt]} ${FM[t.fmt]}</span><h1>${E(t.name)}</h1><div>👤 Creado por <b>${E(t.by||'—')}</b> · ${t.parts.length} ${t.fmt=='duo'?'dúos':'participantes'}</div>${t.start?`<div>📅 ${t.start>Date.now()?'Inicia':'Inició'}: <b>${fdt(t.start)}</b></div>`:''}</div></div>`}
